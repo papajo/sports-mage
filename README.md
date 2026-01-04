@@ -1,127 +1,184 @@
-#!/usr/bin/env python3
-"""
-Sports Data Fetcher - README
+# SportsMage - Sports Betting Application
 
-This file contains instructions for setting up and using the sports data integration.
-"""
+A full-featured sports betting application built with Next.js 14, TypeScript, and Tailwind CSS. Features real-time betting odds, bet placement, wallet management, and comprehensive bet history tracking.
 
-# Sports Data Integration Project
+## 🚀 Features
 
-## Overview
+- **Real-time Betting Odds**: Display live betting odds for multiple sports
+- **Bet Placement**: Place bets on moneyline, spread, and totals markets
+- **Bet Slip**: Manage multiple bets before placing
+- **Wallet System**: Track balance, deposits, and pending bets
+- **Bet History**: View all placed bets with status tracking (Pending, Won, Lost)
+- **Live Scores**: Real-time updates on ongoing matches
+- **Multiple Sports**: Support for Football, Tennis, Cricket, and more
+- **Responsive Design**: Modern UI built with Tailwind CSS
 
-This project integrates live sports data from API-Sports into your database and application. It includes scripts for:
+## 🛠️ Tech Stack
 
-1. Setting up the database schema
-2. Configuring API access
-3. Fetching and storing sports data
-4. Manually updating data at regular intervals
-5. Testing API connectivity
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **State Management**: React Context API
+- **Database**: Cloudflare D1 (ready for integration)
+- **Deployment**: Vercel/Netlify ready
 
-## Setup Instructions
-
-### 1. Install Required Dependencies
-
-```bash
-pip install mysql-connector-python requests python-dotenv
-```
-
-### 2. Configure API Access
-
-Run the configuration script to set up your API key and database credentials:
+## 📦 Installation
 
 ```bash
-python config_setup.py
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/sports-mage.git
+cd sports-mage
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
 ```
 
-You will need:
-- Your API-Sports API key
-- Database host, username, password, and database name
+The application will be available at `http://localhost:3003`
 
-### 3. Set Up the Database
+## 🏗️ Project Structure
 
-Run the database setup script to create the necessary database and tables:
+```
+SportsMage/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   ├── betting/           # Betting pages
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Home page
+├── components/            # React components
+│   ├── BettingOdds.tsx   # Odds display
+│   ├── BetSlip.tsx       # Bet slip component
+│   └── ...
+├── lib/                   # Shared utilities
+│   ├── betting.ts        # Betting hook
+│   └── ...
+├── contexts/              # React contexts
+│   └── BettingContext.tsx
+└── ...
+```
+
+## 🎯 Key Pages
+
+- `/` - Home page
+- `/betting` - Main betting interface
+- `/betting/history` - Bet history
+- `/betting/wallet` - Wallet management
+- `/live` - Live scores
+- `/tennis-cricket` - Tennis & Cricket dashboard
+- `/leagues` - Browse leagues
+- `/teams` - Browse teams
+- `/fixtures` - Upcoming matches
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env.local` file:
+
+```env
+# API Keys (when integrating live data)
+API_SPORTS_KEY=your_api_key
+SPORTRADAR_KEY=your_sportradar_key
+
+# Database (when using Cloudflare D1)
+DATABASE_URL=your_database_url
+```
+
+## 📚 Documentation
+
+- [How-To Guide](./howto.md) - Development guide
+- [Troubleshooting](./TROUBLESHOOTING.md) - Issue tracking and solutions
+- [Deployment Guide](./DEPLOYMENT_GUIDE.md) - Deploy to Vercel/Netlify
+- [Betting App Guide](./BETTING_APP_GUIDE.md) - Betting features documentation
+- [Live Data Sources](./LIVE_DATA_SOURCES_RESEARCH.md) - API research for betting data
+
+## 🚢 Deployment
+
+### Deploy to Vercel (Recommended)
+
+1. Push to GitHub
+2. Import project in [Vercel](https://vercel.com)
+3. Vercel auto-detects Next.js settings
+4. Add environment variables
+5. Deploy!
+
+See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for detailed instructions.
+
+### Deploy to Netlify
+
+1. Push to GitHub
+2. Import project in [Netlify](https://netlify.com)
+3. Configure build settings:
+   - Build command: `npm run build`
+   - Publish directory: `.next`
+4. Add environment variables
+5. Deploy!
+
+## 🧪 Development
 
 ```bash
-python setup_database.py
+# Development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Lint code
+npm run lint
 ```
 
-### 4. Test API Connectivity
+## 📝 Scripts
 
-Verify that your API key works and you can fetch data:
+- `npm run dev` - Start development server on port 3003
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
 
-```bash
-python test_api.py
-```
+## 🔐 Security Notes
 
-## Usage
+- Never commit `.env` files
+- Use environment variables for API keys
+- Implement proper authentication for production
+- Validate all user inputs
+- Use HTTPS in production
 
-### Fetching Data
+## 🤝 Contributing
 
-The main script `sports_data_fetcher.py` provides several options for fetching data:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-```bash
-# Fetch all data (full update)
-python sports_data_fetcher.py --full
+## 📄 License
 
-# Update only live fixtures
-python sports_data_fetcher.py --live
+This project is private and proprietary.
 
-# Fetch data for a specific league and season
-python sports_data_fetcher.py --league 39 --season 2023
+## 🐛 Known Issues
 
-# Fetch leagues for a specific country
-python sports_data_fetcher.py --country "England"
-```
+- API routes currently return mock data (needs database integration)
+- Authentication system not yet implemented
+- Real-time odds updates need API integration
 
-### Regular Updates
+## 🗺️ Roadmap
 
-Since scheduled tasks are not available, you can use the manual update script to fetch data at regular intervals:
+- [ ] Integrate The Odds API for real betting odds
+- [ ] Connect Cloudflare D1 database
+- [ ] Implement user authentication
+- [ ] Add WebSocket for real-time updates
+- [ ] Implement bet settlement system
+- [ ] Add payment processing
 
-```bash
-# Update live fixtures every 60 seconds
-python manual_update.py --type live --interval 60
+## 📞 Support
 
-# Run a full update once per day (86400 seconds)
-python manual_update.py --type full --interval 86400
+For issues and questions, please check:
+- [Troubleshooting Guide](./TROUBLESHOOTING.md)
+- [How-To Guide](./howto.md)
 
-# Run live updates every minute for 60 iterations (1 hour)
-python manual_update.py --type live --interval 60 --iterations 60
-```
+---
 
-## Data Structure
-
-The database schema includes tables for:
-
-- Countries
-- Leagues
-- Teams
-- Players
-- Fixtures (matches)
-- Events (goals, cards, etc.)
-- Statistics
-- Standings
-
-See `database_schema_documentation.md` for detailed information about the database structure.
-
-## API Usage
-
-This project uses API-Sports for fetching live sports data. The free tier includes:
-- 100 requests per day per API
-- Access to multiple sports APIs
-- Real-time updates every 15 seconds
-
-For production use, consider upgrading to a paid plan based on your needs.
-
-## Troubleshooting
-
-- Check `sports_data_fetcher.log` for detailed error messages
-- Verify your API key is correct in the `.env` file
-- Ensure your database credentials are correct
-- Check your API request limits in the API-Sports dashboard
-
-## Next Steps
-
-1. Implement a user interface for visualizing the sports data
-2. Add user authentication for accessing the data
-3. Implement search and filtering functionality
-4. Add payment processing for premium features
+Built with ❤️ using Next.js
