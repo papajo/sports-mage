@@ -136,7 +136,8 @@ export class DatabaseService {
 
   // Countries methods
   async getCountries(): Promise<Country[]> {
-    return this.db.prepare('SELECT * FROM countries ORDER BY name').all<Country>();
+    const result = await this.db.prepare('SELECT * FROM countries ORDER BY name').all<Country>();
+    return result.results || [];
   }
 
   async getCountryById(countryId: number): Promise<Country | null> {
@@ -149,11 +150,13 @@ export class DatabaseService {
   // Leagues methods
   async getLeagues(countryId?: number): Promise<League[]> {
     if (countryId) {
-      return this.db.prepare(
+      const result = await this.db.prepare(
         'SELECT * FROM leagues WHERE country_id = ? ORDER BY name'
       ).bind(countryId).all<League>();
+      return result.results || [];
     }
-    return this.db.prepare('SELECT * FROM leagues ORDER BY name').all<League>();
+    const result = await this.db.prepare('SELECT * FROM leagues ORDER BY name').all<League>();
+    return result.results || [];
   }
 
   async getLeagueById(leagueId: number): Promise<League | null> {
@@ -166,14 +169,16 @@ export class DatabaseService {
   // Teams methods
   async getTeams(leagueId?: number, season?: number): Promise<Team[]> {
     if (leagueId && season) {
-      return this.db.prepare(`
+      const result = await this.db.prepare(`
         SELECT t.* FROM teams t
         JOIN league_teams lt ON t.team_id = lt.team_id
         WHERE lt.league_id = ? AND lt.season = ?
         ORDER BY t.name
       `).bind(leagueId, season).all<Team>();
+      return result.results || [];
     }
-    return this.db.prepare('SELECT * FROM teams ORDER BY name').all<Team>();
+    const result = await this.db.prepare('SELECT * FROM teams ORDER BY name').all<Team>();
+    return result.results || [];
   }
 
   async getTeamById(teamId: number): Promise<Team | null> {
@@ -184,8 +189,8 @@ export class DatabaseService {
   }
 
   // Fixtures methods
-  async getLiveFixtures(): Promise<Fixture[]> {
-    return this.db.prepare(`
+  async getLiveFixtures(): Promise<(Fixture & { home_team_name: string, away_team_name: string, league_name: string, league_logo: string | null })[]> {
+    const result = await this.db.prepare(`
       SELECT f.*, ht.name as home_team_name, at.name as away_team_name, 
              l.name as league_name, l.logo_url as league_logo
       FROM fixtures f
@@ -195,10 +200,11 @@ export class DatabaseService {
       WHERE f.status IN ('1H', '2H', 'HT', 'ET', 'P', 'BT')
       ORDER BY f.fixture_date
     `).all<Fixture & { home_team_name: string, away_team_name: string, league_name: string, league_logo: string | null }>();
+    return result.results || [];
   }
 
-  async getFixturesByDate(date: string): Promise<Fixture[]> {
-    return this.db.prepare(`
+  async getFixturesByDate(date: string): Promise<(Fixture & { home_team_name: string, away_team_name: string, league_name: string, league_logo: string | null })[]> {
+    const result = await this.db.prepare(`
       SELECT f.*, ht.name as home_team_name, at.name as away_team_name, 
              l.name as league_name, l.logo_url as league_logo
       FROM fixtures f
@@ -208,6 +214,7 @@ export class DatabaseService {
       WHERE DATE(f.fixture_date) = DATE(?)
       ORDER BY f.fixture_date
     `).bind(date).all<Fixture & { home_team_name: string, away_team_name: string, league_name: string, league_logo: string | null }>();
+    return result.results || [];
   }
 
   async getFixtureById(fixtureId: number): Promise<Fixture | null> {
@@ -224,37 +231,38 @@ export class DatabaseService {
   }
 
   // Standings methods
-  async getStandings(leagueId: number, season: number): Promise<Standing[]> {
-    return this.db.prepare(`
+  async getStandings(leagueId: number, season: number): Promise<(Standing & { team_name: string, team_logo: string | null })[]> {
+    const result = await this.db.prepare(`
       SELECT s.*, t.name as team_name, t.logo_url as team_logo
       FROM standings s
       JOIN teams t ON s.team_id = t.team_id
       WHERE s.league_id = ? AND s.season = ?
       ORDER BY s.rank
     `).bind(leagueId, season).all<Standing & { team_name: string, team_logo: string | null }>();
+    return result.results || [];
   }
 
   // Search methods
   async searchSports(query: string): Promise<{
     leagues: League[],
     teams: Team[],
-    fixtures: Fixture[]
+    fixtures: (Fixture & { home_team_name: string, away_team_name: string })[]
   }> {
-    const leagues = await this.db.prepare(`
+    const leaguesResult = await this.db.prepare(`
       SELECT * FROM leagues 
       WHERE name LIKE ? 
       ORDER BY name 
       LIMIT 10
     `).bind(`%${query}%`).all<League>();
 
-    const teams = await this.db.prepare(`
+    const teamsResult = await this.db.prepare(`
       SELECT * FROM teams 
       WHERE name LIKE ? 
       ORDER BY name 
       LIMIT 10
     `).bind(`%${query}%`).all<Team>();
 
-    const fixtures = await this.db.prepare(`
+    const fixturesResult = await this.db.prepare(`
       SELECT f.*, ht.name as home_team_name, at.name as away_team_name
       FROM fixtures f
       JOIN teams ht ON f.home_team_id = ht.team_id
@@ -265,9 +273,9 @@ export class DatabaseService {
     `).bind(`%${query}%`, `%${query}%`).all<Fixture & { home_team_name: string, away_team_name: string }>();
 
     return {
-      leagues: leagues.results,
-      teams: teams.results,
-      fixtures: fixtures.results
+      leagues: leaguesResult.results || [],
+      teams: teamsResult.results || [],
+      fixtures: fixturesResult.results || []
     };
   }
 
@@ -291,11 +299,12 @@ export class DatabaseService {
   }
 
   async getPaymentTransactions(userId: number): Promise<PaymentTransaction[]> {
-    return this.db.prepare(`
+    const result = await this.db.prepare(`
       SELECT * FROM payment_transactions
       WHERE user_id = ?
       ORDER BY transaction_date DESC
     `).bind(userId).all<PaymentTransaction>();
+    return result.results || [];
   }
 
   // Test payment methods

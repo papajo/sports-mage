@@ -1,13 +1,13 @@
 'use client';
 
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useBetting, UserWallet, Bet } from '../lib/betting';
+import { useBetting, UserWallet, Bet, BettingOdds, BetType } from '../lib/betting';
 
 interface BettingContextType {
   wallet: UserWallet;
   bets: Bet[];
   betSlip: any[];
-  addToBetSlip: (odds: any, betType: string, selection: string, oddsValue: number) => void;
+  addToBetSlip: (odds: BettingOdds, betType: BetType, selection: string, oddsValue: number) => void;
   removeFromBetSlip: (id: string) => void;
   clearBetSlip: () => void;
   placeBet: (stake: number) => { success: boolean; message: string; bet?: Bet };

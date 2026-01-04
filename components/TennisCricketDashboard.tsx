@@ -2,10 +2,58 @@
 
 import React, { useState, useEffect } from 'react';
 
+interface TennisLiveMatch {
+  id: string;
+  competition: string;
+  player1: { name: string; country: string };
+  player2: { name: string; country: string };
+  status: string;
+  score: {
+    sets: { player1: number; player2: number }[];
+    currentSet: number;
+    currentGame: string;
+    server: string;
+  };
+}
+
+interface TennisUpcomingMatch {
+  id: string;
+  competition: string;
+  player1: { name: string; country: string };
+  player2: { name: string; country: string };
+  scheduledTime: string;
+  round: string;
+}
+
+interface CricketLiveMatch {
+  id: string;
+  competition: string;
+  team1: { name: string; code: string };
+  team2: { name: string; code: string };
+  status: string;
+  score: {
+    team1: { runs: number; wickets: number; overs: string };
+    team2: { runs: number; wickets: number; overs: string };
+    currentInnings: number;
+    currentBatsmen: string[];
+    currentBowler: string;
+  };
+}
+
+interface CricketUpcomingMatch {
+  id: string;
+  competition: string;
+  team1: { name: string; code: string };
+  team2: { name: string; code: string };
+  scheduledTime: string;
+  venue?: string;
+  format: string;
+}
+
 export default function TennisCricketDashboard() {
   const [activeTab, setActiveTab] = useState('tennis');
-  const [tennisData, setTennisData] = useState({ live: [], upcoming: [] });
-  const [cricketData, setCricketData] = useState({ live: [], upcoming: [] });
+  const [tennisData, setTennisData] = useState<{ live: TennisLiveMatch[]; upcoming: TennisUpcomingMatch[] }>({ live: [], upcoming: [] });
+  const [cricketData, setCricketData] = useState<{ live: CricketLiveMatch[]; upcoming: CricketUpcomingMatch[] }>({ live: [], upcoming: [] });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
