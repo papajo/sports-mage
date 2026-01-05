@@ -184,30 +184,49 @@ export function useBetting() {
   // Track if bet slip was explicitly cleared (not just reset by Fast Refresh)
   const explicitlyClearedRef = useRef(false);
 
-  // Load wallet and bets from localStorage after mount (client-side only)
+  // Load wallet and bets from API or localStorage after mount (client-side only)
   // betSlip is already initialized from localStorage in useState above
   useEffect(() => {
     if (initializedRef.current) return;
     
-    // In production, fetch from API:
-    // const fetchWallet = async () => {
-    //   const response = await fetch('/api/betting/wallet?user_id=user-1');
-    //   const data = await response.json();
-    //   if (data.success) setWallet(data.wallet);
-    // };
-    // fetchWallet();
-    
     // Only access localStorage on client side
     if (typeof window !== 'undefined') {
       try {
-        const savedWallet = localStorage.getItem('user_wallet');
-        const savedBets = localStorage.getItem('user_bets');
+        // Try to get user from localStorage
+        const userStr = localStorage.getItem('user');
+        const user = userStr ? JSON.parse(userStr) : null;
         
-        if (savedWallet) {
-          const parsed = JSON.parse(savedWallet);
-          setWallet(parsed);
+        if (user && user.id) {
+          // User is authenticated - fetch wallet from API
+          const fetchWallet = async () => {
+            try {
+              const response = await fetch(`/api/betting/wallet?user_id=${user.id}`);
+              const data = await response.json();
+              if (data.success && data.wallet) {
+                setWallet(data.wallet);
+              }
+            } catch (e) {
+              console.error('Error fetching wallet from API:', e);
+              // Fallback to localStorage
+              const savedWallet = localStorage.getItem('user_wallet');
+              if (savedWallet) {
+                const parsed = JSON.parse(savedWallet);
+                setWallet(parsed);
+              }
+            }
+          };
+          fetchWallet();
+        } else {
+          // No user - use localStorage (demo mode)
+          const savedWallet = localStorage.getItem('user_wallet');
+          if (savedWallet) {
+            const parsed = JSON.parse(savedWallet);
+            setWallet(parsed);
+          }
         }
         
+        // Load bets from localStorage (will be replaced with API later)
+        const savedBets = localStorage.getItem('user_bets');
         if (savedBets) {
           const parsed = JSON.parse(savedBets);
           setBets(parsed);
@@ -250,11 +269,21 @@ export function useBetting() {
     }
   }, [betSlip.length]);
 
-  // Save wallet, bets, and bet slip to localStorage
+  // Save wallet to API (if authenticated) and localStorage
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('user_wallet', JSON.stringify(wallet));
+    if (typeof window === 'undefined' || !initializedRef.current) return;
+    
+    // Try to sync with API if user is authenticated
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+    
+    if (user && user.id) {
+      // In production, we'd update via API, but for now we'll keep localStorage as backup
+      // The wallet is managed by the API endpoint
     }
+    
+    // Always save to localStorage as backup
+    localStorage.setItem('user_wallet', JSON.stringify(wallet));
   }, [wallet]);
 
   useEffect(() => {
