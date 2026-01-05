@@ -181,6 +181,8 @@ export function useBetting() {
   
   // Use ref to track if we've initialized to prevent overwriting with empty values
   const initializedRef = useRef(false);
+  // Track if bet slip was explicitly cleared (not just reset by Fast Refresh)
+  const explicitlyClearedRef = useRef(false);
 
   // Load wallet and bets from localStorage after mount (client-side only)
   // betSlip is already initialized from localStorage in useState above
