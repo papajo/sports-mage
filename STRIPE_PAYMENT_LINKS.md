@@ -160,13 +160,23 @@ Add to `.env.local`:
 
 ```env
 # Stripe Payment Links (created in Dashboard)
-STRIPE_PAYMENT_LINK_DEPOSIT_25=https://buy.stripe.com/xxx
-STRIPE_PAYMENT_LINK_DEPOSIT_50=https://buy.stripe.com/xxx
-STRIPE_PAYMENT_LINK_DEPOSIT_100=https://buy.stripe.com/xxx
-STRIPE_PAYMENT_LINK_DEPOSIT_CUSTOM=https://buy.stripe.com/xxx
-STRIPE_PAYMENT_LINK_SUBSCRIPTION_PREMIUM=https://buy.stripe.com/xxx
-STRIPE_PAYMENT_LINK_SUBSCRIPTION_PRO=https://buy.stripe.com/xxx
+# Test Payment Link (for development/testing)
+NEXT_PUBLIC_STRIPE_PAYMENT_LINK_TEST=https://buy.stripe.com/test_eVq4gB5P89Nvb1X7RL5ZC00
+
+# Production Payment Links (create these in Stripe Dashboard)
+NEXT_PUBLIC_STRIPE_PAYMENT_LINK_DEPOSIT_25=https://buy.stripe.com/xxx
+NEXT_PUBLIC_STRIPE_PAYMENT_LINK_DEPOSIT_50=https://buy.stripe.com/xxx
+NEXT_PUBLIC_STRIPE_PAYMENT_LINK_DEPOSIT_100=https://buy.stripe.com/xxx
+NEXT_PUBLIC_STRIPE_PAYMENT_LINK_DEPOSIT_250=https://buy.stripe.com/xxx
+NEXT_PUBLIC_STRIPE_PAYMENT_LINK_DEPOSIT_CUSTOM=https://buy.stripe.com/xxx
+NEXT_PUBLIC_STRIPE_PAYMENT_LINK_SUBSCRIPTION_PREMIUM=https://buy.stripe.com/xxx
+NEXT_PUBLIC_STRIPE_PAYMENT_LINK_SUBSCRIPTION_PRO=https://buy.stripe.com/xxx
+
+# Enable Payment Links (set to 'true' to use Payment Links instead of Payment Intents)
+NEXT_PUBLIC_USE_PAYMENT_LINKS=true
 ```
+
+**Note**: The test Payment Link (`NEXT_PUBLIC_STRIPE_PAYMENT_LINK_TEST`) is already configured and will be used as a fallback if other links are not set. This allows you to test the payment flow immediately.
 
 ### 3. Use Links in Your App
 

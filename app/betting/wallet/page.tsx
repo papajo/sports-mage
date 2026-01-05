@@ -81,10 +81,15 @@ export default function WalletPage() {
           )}
 
           {/* Option 1: Use Payment Link (no-code) - Recommended for MVP */}
-          {process.env.NEXT_PUBLIC_USE_PAYMENT_LINKS === 'true' ? (
+          {(process.env.NEXT_PUBLIC_USE_PAYMENT_LINKS === 'true' || 
+            process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK_TEST) ? (
             <DepositButton
               amount={parseFloat(depositAmount) || 0}
-              paymentLinkUrl={process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK_DEPOSIT_CUSTOM}
+              paymentLinkUrl={
+                process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK_DEPOSIT_CUSTOM || 
+                process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK_TEST ||
+                'https://buy.stripe.com/test_eVq4gB5P89Nvb1X7RL5ZC00'
+              }
               usePaymentLink={true}
             />
           ) : (
@@ -123,8 +128,9 @@ export default function WalletPage() {
           })}
         </div>
         <p className="text-xs text-gray-500 text-center mt-4">
-          {process.env.NEXT_PUBLIC_USE_PAYMENT_LINKS === 'true' 
-            ? 'Click to deposit via Stripe Payment Link'
+          {(process.env.NEXT_PUBLIC_USE_PAYMENT_LINKS === 'true' || 
+            process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK_TEST)
+            ? 'Click to deposit via Stripe Payment Link (Test Mode)'
             : 'Click to set amount, then use Deposit Funds button above'}
         </p>
       </div>

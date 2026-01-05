@@ -18,6 +18,7 @@ export default function DepositButton({
   const handleDeposit = async () => {
     if (usePaymentLink && paymentLinkUrl) {
       // Use Payment Link (no-code) - redirect to Stripe-hosted page
+      // The Payment Link will handle the payment and redirect back to success URL
       window.location.href = paymentLinkUrl;
       return;
     }
