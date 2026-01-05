@@ -224,8 +224,15 @@ export function useBetting() {
 
   // Separate effect to restore betSlip if it gets reset (e.g., by Fast Refresh)
   // Only restore if betSlip is empty but localStorage has data
+  // BUT NOT if it was explicitly cleared by the user
   useEffect(() => {
     if (typeof window === 'undefined' || !initializedRef.current) return;
+    
+    // If bet slip was explicitly cleared, don't restore it
+    if (explicitlyClearedRef.current) {
+      explicitlyClearedRef.current = false; // Reset the flag
+      return;
+    }
     
     const savedBetSlip = localStorage.getItem('user_bet_slip');
     if (savedBetSlip && betSlip.length === 0) {
@@ -263,8 +270,15 @@ export function useBetting() {
       localStorage.setItem('user_bet_slip', JSON.stringify(betSlip));
       console.log('Saved bet slip to localStorage:', betSlip.length, 'items');
     } else {
-      // Only clear localStorage if bet slip was explicitly cleared (not just reset)
-      // Check if localStorage has data - if it does and we're empty, it might be a reset
+      // If bet slip was explicitly cleared, clear localStorage too
+      if (explicitlyClearedRef.current) {
+        localStorage.setItem('user_bet_slip', JSON.stringify([]));
+        console.log('Cleared bet slip from localStorage (explicit clear)');
+        explicitlyClearedRef.current = false; // Reset the flag
+        return;
+      }
+      
+      // Otherwise, check if localStorage has data - if it does and we're empty, it might be a reset
       const saved = localStorage.getItem('user_bet_slip');
       if (saved) {
         try {
@@ -329,7 +343,10 @@ export function useBetting() {
   }, []);
 
   const clearBetSlip = useCallback(() => {
+    // Mark that this is an explicit clear, not a Fast Refresh reset
+    explicitlyClearedRef.current = true;
     setBetSlip([]);
+    console.log('Bet slip explicitly cleared by user');
   }, []);
 
   const placeBet = useCallback((stake: number): { success: boolean; message: string; bet?: Bet } => {
