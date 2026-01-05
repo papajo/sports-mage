@@ -1,30 +1,60 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useBettingContext } from '../../../contexts/BettingContext';
+import { getCurrentUser, requireAuth } from '../../../lib/auth-helpers';
 import Link from 'next/link';
 import DepositButton from '../../../components/Wallet/DepositButton';
 
 export default function WalletPage() {
+  const router = useRouter();
   const { wallet, setWallet } = useBettingContext();
   const [depositAmount, setDepositAmount] = useState<string>('100.00');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleDeposit = () => {
-    const amount = parseFloat(depositAmount);
-    if (isNaN(amount) || amount <= 0) {
+  useEffect(() => {
+    // Check authentication
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      router.push('/auth/login?redirect=' + encodeURIComponent('/betting/wallet'));
       return;
     }
+    setUser(currentUser);
+    setIsLoading(false);
 
-    setWallet(prev => ({
-      ...prev,
-      balance: prev.balance + amount
-    }));
+    // Fetch wallet from API (user-specific)
+    const fetchWallet = async () => {
+      try {
+        const response = await fetch(`/api/betting/wallet?user_id=${currentUser.id}`);
+        const data = await response.json();
+        if (data.success && data.wallet) {
+          setWallet(data.wallet);
+        }
+      } catch (error) {
+        console.error('Error fetching wallet:', error);
+      }
+    };
 
-    setShowSuccess(true);
-    setDepositAmount('100.00');
-    setTimeout(() => setShowSuccess(false), 3000);
-  };
+    fetchWallet();
+  }, [router, setWallet]);
+
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="mt-2 text-gray-500">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect
+  }
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -90,6 +120,8 @@ export default function WalletPage() {
                 process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK_TEST ||
                 'https://buy.stripe.com/test_eVq4gB5P89Nvb1X7RL5ZC00'
               }
+              userId={user.id}
+              amount={parseFloat(depositAmount) || 0}
               usePaymentLink={true}
             />
           ) : (
@@ -123,6 +155,7 @@ export default function WalletPage() {
                 amount={amount}
                 paymentLinkUrl={paymentLinkUrl}
                 usePaymentLink={!!paymentLinkUrl}
+                userId={user.id}
               />
             );
           })}

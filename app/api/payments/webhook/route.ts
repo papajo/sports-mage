@@ -28,24 +28,78 @@ export async function POST(request: NextRequest) {
 
     // Handle different event types
     switch (event.type) {
+      case 'checkout.session.completed':
+        // Payment Link or Checkout Session completed
+        const session = event.data.object as any;
+        const userId = session.metadata?.userId;
+        const amount = session.amount_total ? session.amount_total / 100 : null; // Convert from cents
+        
+        if (userId && amount) {
+          console.log('Payment succeeded via checkout session:', session.id, 'User:', userId, 'Amount:', amount);
+          
+          // Update user wallet
+          try {
+            const walletResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/api/betting/wallet`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId,
+                action: 'deposit',
+                amount,
+                transactionId: session.id,
+              }),
+            });
+            
+            if (!walletResponse.ok) {
+              console.error('Failed to update wallet:', await walletResponse.text());
+            }
+          } catch (err) {
+            console.error('Error updating wallet:', err);
+          }
+        }
+        break;
+
       case 'payment_intent.succeeded':
         const paymentIntent = event.data.object as any;
-        // Update user wallet balance in database
-        console.log('Payment succeeded:', paymentIntent.id);
-        // TODO: Update user wallet in database
+        const intentUserId = paymentIntent.metadata?.userId;
+        const intentAmount = paymentIntent.amount ? paymentIntent.amount / 100 : null;
+        
+        if (intentUserId && intentAmount) {
+          console.log('Payment succeeded via payment intent:', paymentIntent.id, 'User:', intentUserId, 'Amount:', intentAmount);
+          
+          // Update user wallet
+          try {
+            const walletResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/api/betting/wallet`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId: intentUserId,
+                action: 'deposit',
+                amount: intentAmount,
+                transactionId: paymentIntent.id,
+              }),
+            });
+            
+            if (!walletResponse.ok) {
+              console.error('Failed to update wallet:', await walletResponse.text());
+            }
+          } catch (err) {
+            console.error('Error updating wallet:', err);
+          }
+        }
         break;
 
       case 'payment_intent.payment_failed':
         console.log('Payment failed:', event.data.object);
-        // TODO: Handle failed payment
+        // TODO: Notify user of failed payment
         break;
 
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
         const subscription = event.data.object as any;
-        // Update user subscription tier
-        console.log('Subscription updated:', subscription.id);
-        // TODO: Update user subscription in database
+        const subUserId = subscription.metadata?.userId;
+        console.log('Subscription updated:', subscription.id, 'User:', subUserId);
+        // TODO: Update user subscription tier in database
         break;
 
       default:
