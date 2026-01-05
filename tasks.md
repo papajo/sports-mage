@@ -151,6 +151,33 @@ The application has been completely rebuilt as a sports betting platform with:
 
 ## Future Enhancements 💡
 
+### Monetization & Business Features
+- [ ] See MONETIZATION_ROADMAP.md for comprehensive feature list
+- [ ] Implement subscription tiers (Free, Premium, Pro)
+- [ ] Add payment processing (Stripe, PayPal)
+- [ ] Create commission-based betting system
+- [ ] Build referral program
+- [ ] Implement in-app purchases
+- [ ] Add advertising revenue streams
+
+### Core Platform Features
+- [ ] Integrate The Odds API for real betting odds
+- [ ] Implement live/in-play betting
+- [ ] Add accumulator/parlay betting
+- [ ] Create bet builder tool
+- [ ] Build cash-out feature
+- [ ] Add user authentication & KYC
+- [ ] Implement withdrawal system
+
+### Advanced Features
+- [ ] AI-powered betting predictions
+- [ ] Advanced analytics dashboard
+- [ ] Social features (follow, share, leaderboards)
+- [ ] Live streaming integration
+- [ ] Expert picks marketplace
+- [ ] Mobile apps (iOS & Android)
+- [ ] Gamification (achievements, rewards)
+
 ### Features
 - [ ] Add more sports (basketball, baseball, hockey)
 - [ ] Implement advanced statistics dashboard
