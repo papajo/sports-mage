@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useBettingContext } from '../../../contexts/BettingContext';
 import Link from 'next/link';
+import DepositButton from '../../../components/Wallet/DepositButton';
 
 export default function WalletPage() {
   const { wallet, setWallet } = useBettingContext();
@@ -79,32 +80,53 @@ export default function WalletPage() {
             </div>
           )}
 
-          <button
-            onClick={handleDeposit}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg"
-          >
-            Deposit Funds
-          </button>
-
-          <p className="text-xs text-gray-500 text-center">
-            Note: This is a demo. In production, this would integrate with a payment processor.
-          </p>
+          {/* Option 1: Use Payment Link (no-code) - Recommended for MVP */}
+          {process.env.NEXT_PUBLIC_USE_PAYMENT_LINKS === 'true' ? (
+            <DepositButton
+              amount={parseFloat(depositAmount) || 0}
+              paymentLinkUrl={process.env.NEXT_PUBLIC_STRIPE_PAYMENT_LINK_DEPOSIT_CUSTOM}
+              usePaymentLink={true}
+            />
+          ) : (
+            // Option 2: Use API-based flow (Payment Intent)
+            <>
+              <button
+                onClick={handleDeposit}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg"
+              >
+                Deposit Funds
+              </button>
+              <p className="text-xs text-gray-500 text-center">
+                Note: This is a demo. In production, this would integrate with Stripe Payment Links or Payment Intents.
+              </p>
+            </>
+          )}
         </div>
       </div>
 
       <div className="mt-6 bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-bold mb-4">Quick Deposit Amounts</h2>
-        <div className="grid grid-cols-4 gap-3">
-          {[25, 50, 100, 250].map((amount) => (
-            <button
-              key={amount}
-              onClick={() => setDepositAmount(amount.toFixed(2))}
-              className="bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg py-3 px-4 font-medium transition-colors"
-            >
-              ${amount}
-            </button>
-          ))}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[25, 50, 100, 250].map((amount) => {
+            // Get Payment Link URL for this amount from env vars
+            const paymentLinkKey = `NEXT_PUBLIC_STRIPE_PAYMENT_LINK_DEPOSIT_${amount}`;
+            const paymentLinkUrl = process.env[paymentLinkKey] as string | undefined;
+
+            return (
+              <DepositButton
+                key={amount}
+                amount={amount}
+                paymentLinkUrl={paymentLinkUrl}
+                usePaymentLink={!!paymentLinkUrl}
+              />
+            );
+          })}
         </div>
+        <p className="text-xs text-gray-500 text-center mt-4">
+          {process.env.NEXT_PUBLIC_USE_PAYMENT_LINKS === 'true' 
+            ? 'Click to deposit via Stripe Payment Link'
+            : 'Click to set amount, then use Deposit Funds button above'}
+        </p>
       </div>
     </div>
   );
