@@ -39,6 +39,8 @@ export default function BetSlipComponent() {
     if (result.success) {
       setShowSuccess(true);
       setStake('10.00');
+      // Note: Bet slip is automatically cleared after successful bet placement
+      // This is standard behavior - bets are saved to your bet history
       setTimeout(() => {
         setShowSuccess(false);
       }, 3000);
@@ -127,7 +129,8 @@ export default function BetSlipComponent() {
 
         {showSuccess && (
           <div className="bg-green-50 border border-green-200 rounded p-2 text-sm text-green-600">
-            Bet placed successfully!
+            <p className="font-semibold">✓ Bet placed successfully!</p>
+            <p className="text-xs mt-1">Your bet slip has been cleared. View your bets in <a href="/betting/history" className="underline font-medium">Bet History</a>.</p>
           </div>
         )}
 
