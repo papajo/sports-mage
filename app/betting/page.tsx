@@ -13,14 +13,25 @@ export default function BettingPage() {
   const { wallet } = useBettingContext();
 
   useEffect(() => {
-    // In production, fetch from API
     const fetchOdds = async () => {
       setIsLoading(true);
-      // Simulate API call
-      setTimeout(() => {
+      try {
+        const response = await fetch('/api/betting/odds');
+        const data = await response.json();
+        
+        if (data.success && data.odds) {
+          setOdds(data.odds);
+        } else {
+          // Fallback to mock data
+          setOdds(getMockBettingOdds());
+        }
+      } catch (error) {
+        console.error('Error fetching odds:', error);
+        // Fallback to mock data
         setOdds(getMockBettingOdds());
+      } finally {
         setIsLoading(false);
-      }, 500);
+      }
     };
 
     fetchOdds();
